@@ -6,8 +6,8 @@ const INIT_DATA = {
   diferentaCotaVolumeLac: 2.5, //m
   volumLac: [0, 28_000, 922_000, 2_400_000, 4_600_000, 8_900_000, 14_000_000],
   deversor: {
-    m: 0.4,
-    b: 5
+    m: 0.35,
+    b: 10
   }
 }
 

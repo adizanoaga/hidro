@@ -24,7 +24,7 @@ const findMQ = (SUM, HS, deltaT) => {
     const M = (2 * S) / deltaT
     const Q = Deversor.getQ(i)
     if (M + Q > SUM) {
-      return { S, M, Q }
+      return { S, M, Q, H: i }
     }
   }
 }
@@ -37,23 +37,27 @@ const HQ = HS.map(([h, s]) => {
   return [h, Deversor.getQ(h, INIT_DATA.deversor.m, INIT_DATA.deversor.b)]
 })
 
-const getSMQ = (I1, I2, S1, Q1, deltaT = INIT_DATA.deltaT) => {
+const getSMQH = (I1, I2, S1, Q1, deltaT = INIT_DATA.deltaT) => {
   const M1 = (2 * S1) / deltaT
   const SUM = I1 + I2 + (M1 - Q1) //M2+Q2
-  const { S, M, Q } = findMQ(SUM, HS, deltaT)
-  return { S, M, Q }
+  const { S, M, Q, H } = findMQ(SUM, HS, deltaT)
+  return { S, M, Q, H }
 }
 
 function App() {
-  let lastSMQ = { S: 0, M: 0, Q: 0 }
-  const SMQarr = [{ ...lastSMQ }]
+  let lastSMQH = { S: 0, M: 0, Q: 0, H: 0 }
+  const SMQHarr = [{ ...lastSMQH }]
   INIT_DATA.inputHidrograph.reduce((q1, q2) => {
-    const { S, M, Q } = getSMQ(q1, q2, lastSMQ.S, lastSMQ.Q)
-    SMQarr.push({ S, M, Q })
-    lastSMQ = { S, M, Q }
+    const { S, M, Q, H } = getSMQH(q1, q2, lastSMQH.S, lastSMQH.Q)
+    SMQHarr.push({ S, M, Q, H })
+    lastSMQH = { S, M, Q, H }
     return q2
   })
-  const Qatenuare = SMQarr.map((item) => item.Q)
+  const Qatenuare = SMQHarr.map((item) => item.Q)
+
+  const HofQ = SMQHarr.map((item) => [item.Q, item.H])
+
+  console.log({ Qatenuare, HofQ, SMQHarr })
 
   return (
     <div>
@@ -64,6 +68,10 @@ function App() {
             { data: INIT_DATA.inputHidrograph, name: 'Qin' },
             { data: Qatenuare, name: 'Qout' }
           ]}
+        />
+        <MyChart
+          title={'Relatia Q - H'}
+          series={[{ data: HofQ, name: 'H(Q)' }]}
         />
         <MyTable
           tableData={[
